@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="poly.persistance.mapper.ICrewlingMappper">
+	
+	
+	<!-- 주식 종목 코드 크롤링 -->
+	<insert id="stock_code" parameterType="NewsDTO">
+		INSERT INTO STOCK_CODE_TABLE
+		(
+			STOCK_CODE,
+			STOCK_NAME
+		)VALUES
+		(
+			#{stock_code},
+			#{stock_name}
+		)
+	</insert>
+	
+	<!-- 주식 종목 코드 조회 -->
+	<select id="stock_code_chk" resultType="String">
+		SELECT STOCK_CODE FROM STOCK_CODE_TABLE
+	</select>
+	
+	<!-- 주식 종목 검색 -->
+	<select id="stock_code_search" parameterType="String" resultType="String">
+		SELECT STOCK_CODE FROM STOCK_CODE_TABLE 
+		WHERE STOCK_NAME = #{stock_name}
+	</select>
+	
+	<!-- 최근 조회 select -->
+	<select id="stock_recent_select" resultType="String">
+		SELECT STOCK_NAME FROM STOCK_RECENT	WHERE ID = #{id}
+	</select>
+		
+	<!-- 최근 조회 insert -->
+	<insert id="stock_recent" parameterType="CrewlingDTO">
+		INSERT INTO STOCK_RECENT
+		(	
+			ID,
+			STOCK_NAME,
+			DATE
+		)
+		VALUES
+		(	
+			#{id},
+			#{stock_name},
+			NOW()
+		)
+	</insert>
+	
+	<!-- 최근 조회 업데이트 -->
+	<update id="stock_recent_update" parameterType="CrewlingDTO">
+		UPDATE STOCK_RECENT SET
+		DATE = NOW()
+		WHERE STOCK_NAME= #{stock_name} AND ID = #{id}
+	</update>
+	
+	<!-- 최근조회  상위 10개 -->
+	<select id="stock_recent_select_5" resultType="CrewlingDTO">
+		SELECT STOCK_NAME FROM STOCK_RECENT	
+		WHERE ID = #{id}
+		ORDER BY DATE DESC LIMIT 5
+	</select>
+	
+	<!-- ======================== -->
+	
+	<!-- 종목토론실 최근 조회 select -->
+	<select id="talk_recent_select" resultType="String">
+		SELECT STOCK_NAME FROM TALK_RECENT	WHERE ID = #{id}
+	</select>
+		
+	<!-- 종목토론실 최근 조회 insert -->
+	<insert id="talk_recent" parameterType="map">
+		INSERT INTO TALK_RECENT
+		(	
+			ID,
+			STOCK_NAME,
+			DATE
+		)
+		VALUES
+		(	
+			#{id},
+			#{stock_name},
+			NOW()
+		)
+	</insert>
+	
+	<!-- 종목토론실 최근 조회 업데이트 -->
+	<update id="talk_recent_update" parameterType="map">
+		UPDATE TALK_RECENT SET
+		DATE = NOW()
+		WHERE STOCK_NAME= #{stock_name} AND ID = #{id} 
+	</update>
+	
+	<!-- 종목토론실 최근조회  상위 10개 -->
+	<select id="talk_recent_select_5" resultType="CrewlingDTO">
+		SELECT STOCK_NAME FROM TALK_RECENT
+		WHERE ID = #{id}
+		ORDER BY DATE DESC LIMIT 5
+	</select>
+	
+</mapper>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="poly.persistance.mapper.DocNoticeMapper">
+
+
+	<!-- 게시판 리스트 -->
+
+	<!-- SELECT NOTICE_NO AS notice_no, NOTICE_TITLE AS notice_title, NOTICE_COUNT 
+		AS notice_count, REGDATE AS regdate FROM DOC_NOTICE ORDER BY NOTICE_NO,REGDATE -->
+
+	<select id="getNoticeList" resultType="DocNoticeDTO">
+		SELECT * FROM
+		DOC_NOTICE
+		ORDER BY NOTICE_NO,REGDATE
+		LIMIT #{startIndex}, 5
+
+	</select>
+
+	<!--글등록 -->
+	<!--DOC_NOTICE_SEQ.NEXTVAL -->
+	<!-- TO_CHAR(N.REGDATE,'YYYY-MM-DD') -->
+	<insert id="insertNoticeInfo" parameterType="DocNoticeDTO">
+		INSERT INTO
+		DOC_NOTICE(
+		NOTICE_TITLE,
+		NOTICE_CONTENT,
+		NOTICE_COUNT,
+		NOTICE_WRITER,
+		REGDATE,
+		UPDDATE
+		)
+		VALUES(
+		#{notice_title},
+		#{notice_content},
+		0,
+		#{notice_writer},
+		SYSDATE(),
+		SYSDATE()
+
+		)
+	</insert>
+
+	<!-- 글 상세보기 -->
+	<!-- 파리미터 타입은 함수 안에 변수 타입임 resultype은 함수가 반환하는 타입임 -->
+	<select id="getNoticeDetail" parameterType="String"
+		resultType="DocNoticeDTO">
+		SELECT
+		NOTICE_TITLE,
+		NOTICE_CONTENT,
+		NOTICE_NO
+		FROM
+		DOC_NOTICE
+		WHERE
+		NOTICE_NO = #{notice_no}
+	</select>
+
+
+	<!-- 글 수정 -->
+	<update id="updateNotice" parameterType="DocNoticeDTO">
+		UPDATE DOC_NOTICE SET
+		NOTICE_TITLE= #{notice_title},
+		NOTICE_CONTENT = #{notice_content}
+		WHERE
+		NOTICE_NO = #{notice_no}
+	</update>
+
+	<!-- 글 삭제 -->
+	<delete id="deleteNotice" parameterType="DocNoticeDTO">
+		DELETE
+		FROM DOC_NOTICE
+		WHERE
+		NOTICE_NO = #{notice_no}
+	</delete>
+
+
+
+	<!-- 공지사항 조회수 -->
+	<update id="NoticeCount" parameterType="String">
+		UPDATE DOC_NOTICE SET
+		NOTICE_COUNT = NOTICE_COUNT+1
+		WHERE NOTICE_NO = #{notice_no}
+	</update>
+
+
+	<!-- 공지사항 리스트 개수 -->
+	<select id="AllNoticeData" resultType="int">
+		SELECT COUNT(*) as count
+		FROM DOC_NOTICE
+	</select>
+
+
+
+	<!-- 공지사항 리스트 검색 -->
+	<select id="getNoticeListSearch" resultType="DocNoticeDTO">
+		SELECT * FROM
+		DOC_NOTICE
+		<include refid="search"></include>
+		ORDER BY NOTICE_NO,REGDATE
+		LIMIT #{startIndex}, #{endIndex}
+	</select>
+
+	<!-- 공지사항 리스트 개수 검색 -->
+	<select id="AllNoticeDataSearch" resultType="int">
+		SELECT COUNT(*) as count FROM DOC_NOTICE
+		<include refid="search"></include>
+	</select>
+
+	<!-- 검색 구분 쿼리 -->
+	<sql id="search">
+		<choose>
+			<when test="searchType =='notice_title'">
+				WHERE NOTICE_TITLE like CONCAT('%',#{keyword},'%')
+			</when>
+
+			<when test="searchType =='notice_content'">
+				WHERE NOTICE_CONTENT like CONCAT('%',#{keyword},'%')
+			</when>
+
+			<when test="searchType =='notice_writer'">
+				WHERE NOTICE_WRITER like CONCAT('%',#{keyword},'%')
+			</when>
+			<otherwise>
+
+			</otherwise>
+
+		</choose>
+
+	</sql>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

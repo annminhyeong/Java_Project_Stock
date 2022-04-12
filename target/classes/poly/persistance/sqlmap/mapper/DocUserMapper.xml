@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="poly.persistance.mapper.DocUserMapper">
+	
+	<!--회원가입하기-->
+	<insert id="InsertUserInfo" parameterType="DocUserDTO">
+		INSERT INTO DOC_USER
+		(	USER_NO,
+			ID,
+			USER_NAME,
+			PASSWORD,
+			EMAIL,
+			REGDATE,
+			UPDDATE,
+			VERIFY
+
+		)
+		VALUES
+		(	(SELECT COALESCE(MAX(USER_NO),0)+1 FROM DOC_USER a),
+			#{id},
+			#{user_name},
+			#{password},
+			#{email},
+			NOW(),
+			NOW(),
+			0
+		)
+	</insert>
+	
+	<!--이메일로 회원 가입 중복 방지하기 -->
+	<!--<select id="getUserExists" parameterType="DocUserDTO" resultType="DocUserDTO">
+		SELECT DECODE(COUNT(1),0,'N','Y') AS EXISTS_YN
+		FROM DOC_USER
+		WHERE EMAIL = #{email}
+	</select> -->
+	
+	<!-- 로그인을 위해 아이디 비밀번호 일치하는지 확인 -->
+	<select id="getUserLoginCheck" parameterType="DocUserDTO" resultType="DocUserDTO">
+		SELECT ID, VERIFY,USER_NAME,USER_NO,EMAIL
+		FROM DOC_USER
+		WHERE ID = #{id} AND PASSWORD = #{password}
+	</select>
+	
+	<!-- 아이디 중복 확인 -->
+	<select id="checkId" resultType="int">
+		SELECT COALESCE(COUNT(*),0) FROM DOC_USER
+		WHERE ID = #{id}
+	</select>
+		
+	<!-- 마이페이지 수정 -->
+	<update id="mypageUpdate" parameterType="DocUserDTO">
+		UPDATE DOC_USER SET
+			USER_NAME = #{user_name},
+			PASSWORD= #{password}
+		where
+			USER_NO = #{user_no} AND ID =#{id}
+	</update>
+	
+	<!-- 마이페이지 삭제 -->
+	<delete id="mypageDelete" parameterType="DocUserDTO">
+		DELETE
+		FROM DOC_USER
+		WHERE
+		USER_NO = #{user_no} AND ID =#{id}	
+	</delete>
+	
+	<!-- 아이디 찾기 -->
+	<select id="searchId" parameterType="DocUserDTO" resultType="DocUserDTO">
+		SELECT ID
+		FROM DOC_USER
+		WHERE EMAIL = #{email}
+	</select>
+	
+	
+	<!-- 비밀번호 찾기 -->
+	<update id="searchPwd" parameterType="DocUserDTO">
+		UPDATE DOC_USER
+		SET
+			PASSWORD = #{password}
+		WHERE
+			ID = #{id} AND EMAIL = #{email}
+	</update>
+	
+
+
+
+	
+	<!-- 회원 삭제 -->
+	<delete id="userDelete" parameterType="DocUserDTO">
+		DELETE
+		FROM DOC_USER
+		WHERE
+		USER_NO = #{user_no}
+	</delete>
+	
+	
+	<!-- 회원 리스트 -->
+	<!-- 
+				SELECT
+			USER_NO AS user_no,
+			ID AS id,
+			USER_NAME AS user_name,
+			REGDATE AS regdate
+
+			FROM DOC_USER
+			WHERE ID = #{id}
+		
+		ORDER BY USER_NO,REGDATE
+	 -->
+	<select id="getUserList" resultType="DocUserDTO">	
+			<![CDATA[
+			SELECT * FROM
+			DOC_USER
+			WHERE NOT VERIFY=1
+			ORDER BY USER_NO,REGDATE
+			LIMIT #{startIndex},#{endIndex}
+	]]>
+	</select>
+	
+	<!-- 사용자 리스트 개수 -->
+	<select id="AllUserData" resultType="int">
+		SELECT COUNT(*) as count FROM DOC_USER
+	</select>
+	
+	
+	
+	<!-- 사용자 리스트 검색 -->
+	<select id="getUserListSearch" resultType="DocUserDTO">
+		SELECT * FROM
+			 DOC_USER 
+			 <include refid="search"></include>
+			 ORDER BY USER_NO,REGDATE 
+			 LIMIT #{startIndex}, #{endIndex}
+	</select>
+	
+	<!-- 리뷰 리스트 개수 검색-->
+	<select id="AllUserDataSearch" resultType="int">
+		SELECT COUNT(*) as count FROM DOC_USER
+		<include refid="search"></include>	
+	</select>
+	
+	<!-- 검색 구분 쿼리 -->
+	<sql id="search">
+		<choose>
+			<when test="searchType =='id'">
+				WHERE ID like CONCAT('%',#{keyword},'%') AND NOT VERIFY=1
+			</when>
+			
+			<when test="searchType =='user_name'">
+				WHERE USER_NAME like CONCAT('%',#{keyword},'%') AND NOT VERIFY=1
+			</when>
+			<otherwise></otherwise>
+
+		</choose>
+		
+	</sql>
+	
+	
+	<!-- 이에일 중복 체크 -->
+	<select id="checkEmail" resultType="int">
+		SELECT COALESCE(COUNT(*),0) FROM DOC_USER
+		WHERE EMAIL = #{email}
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>
